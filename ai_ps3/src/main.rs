@@ -19,6 +19,8 @@ fn main() {
     
     dbg!(solution);
 
+    // solving the example grid with Greedy Best First Search
+
 }
 
 #[derive(Debug)]
