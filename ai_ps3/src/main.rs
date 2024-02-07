@@ -16,7 +16,7 @@ fn main() {
     let dest: Node = Node {x: 3, y: 6, cost: 0};
     println!("source: {:?}", source);
     println!("dest: {:?}", dest);
-
+    println!("grid_dest: {:?}", grid.grid[dest.x as usize][dest.y as usize]);
     let solution = breadth_first_search(&grid, source, dest);
     dbg!(solution);
 
@@ -36,6 +36,7 @@ impl  ExampleGrid {
 
 #[derive(Debug)]
 struct Solution {
+    node: Node,
     cost: i32,
 
 }
@@ -55,18 +56,23 @@ fn breadth_first_search(grid: &ExampleGrid, source: Node, dest: Node) -> Option<
     visited[source.x as usize][source.y as usize] = true;
     queue.push_back(source.clone());
     while !queue.is_empty() {
-        dbg!(&queue);
+        let cur_node = queue.pop_front().unwrap();
+        dbg!(&cur_node);
+        if cur_node.x == dest.x && cur_node.y == dest.y{
+            return Some(Solution {cost: cur_node.cost, node: cur_node.clone()});
+        }
         for &(i, j) in &moves {
-            let new_node = Node {x: source.x + i, y: source.y + j, cost: source.cost + 1};
-            if grid.valid_move(new_node.clone()) && !visited[new_node.x as usize][new_node.y as usize] {
-                visited[new_node.x as usize][new_node.y as usize] = true;
-                queue.push_back(new_node.clone());
-            
-                if new_node == dest {
-                    return Some(Solution {cost: new_node.cost});
+            if cur_node.x + i >= 0 && cur_node.y + j >= 0
+            && cur_node.x + i < grid.grid.len() as isize && cur_node.y + j < grid.grid[0].len() as isize {   
+                let new_node = Node {x: cur_node.x + i, y: cur_node.y + j, cost: cur_node.cost + 1};
+                if grid.valid_move(new_node.clone()) && !visited[new_node.x as usize][new_node.y as usize] {
+                    visited[new_node.x as usize][new_node.y as usize] = true;
+                    queue.push_back(new_node.clone());
+                    
                 }
             }
         }
+        //dbg!(&queue);
     }
     None
 }
