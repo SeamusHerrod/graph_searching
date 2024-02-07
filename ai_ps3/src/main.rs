@@ -19,14 +19,14 @@ fn main() {
     let dest: Node = Node {x: 3, y: 6, cost: 0};
     let solution = breadth_first_search(&grid, source, dest);
     
-    dbg!(solution);
+    println!("BFS cost: {}\tBFS Closed: {}\tBFS Fringe: {}", solution.unwrap().cost, solution.unwrap().closed, solution.unwrap().fringe);
 
     // solving the example grid with Greedy Best First Search
     let source: GreedyNode = GreedyNode {x: 3, y: 2, dist: 0, cost: 0};
     let dest: GreedyNode = GreedyNode {x: 3, y: 6, dist: 0, cost: 0};
     let solution = greedy_best_first_search(&grid, source, dest);
 
-    dbg!(solution);
+    println!("GBFS cost: {}\tGBFS Closed: {}\tGBFS Fringe: {}", solution.unwrap().cost, solution.unwrap().closed, solution.unwrap().fringe);
 }
 
 #[derive(Debug)]
@@ -41,15 +41,14 @@ impl  ExampleGrid {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 struct Solution {
     node: Node,
     cost: i32,
     closed: usize,
     fringe: i32,
-
 }
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 struct GreedySolution {
     node: GreedyNode,
     cost: i32,
@@ -58,14 +57,14 @@ struct GreedySolution {
 
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 struct Node {
     x: isize,
     y: isize,
     cost: i32,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 struct GreedyNode {
     x: isize,
     y: isize,
@@ -130,38 +129,6 @@ fn closed_set(visited: &Vec<Vec<bool>>) ->  usize {
     closed
 }
 
-fn bfs_fringe_set(queue: VecDeque<Node>, visited: &Vec<Vec<bool>>, grid: &ExampleGrid) -> i32 {
-    let mut fringe: i32 = 0;
-    for node in queue {
-        fringe += num_reachable_nodes(grid, &node, visited);
-    }
-    fringe
-}
-
-fn greedy_fringe_set(queue: BinaryHeap<Reverse<GreedyNode>>, visited: &Vec<Vec<bool>>, grid: &ExampleGrid) -> i32 {
-    let mut fringe: i32 = 0;
-    for node in queue {
-        fringe += num_reachable_nodes(grid, &Node {x: node.0.x, y: node.0.y, cost: 0}, visited);
-    }
-    fringe
-}
-
-fn num_reachable_nodes(grid: &ExampleGrid, node: &Node, visited: &Vec<Vec<bool>>) -> i32 {
-    let moves = [(1,0), (0,-1), (-1,0), (0,1)];
-    let mut reachable = 0;
-    for &(i,j) in &moves {
-        if node.x + i >= 0 && node.y + j >= 0
-        && node.x + i < grid.grid.len() as isize 
-        && node.y + j < grid.grid[0].len() as isize {
-            let new_node = Node {x: node.x + i, y: node.y + j, cost: 0};
-            if grid.valid_move(new_node.clone()) && !visited[new_node.x as usize][new_node.y as usize] {
-                reachable += 1;
-            }
-        }
-    }
-    reachable
-}
-
 fn greedy_best_first_search(grid: &ExampleGrid, source: GreedyNode, dest: GreedyNode) -> Option<GreedySolution>{
     let moves = [(1,0), (0,-1), (-1,0), (0,1)]; // up, down, left, right
     let mut visited = vec![vec![false; grid.grid[0].len()]; grid.grid.len()];
@@ -203,4 +170,3 @@ fn greedy_best_first_search(grid: &ExampleGrid, source: GreedyNode, dest: Greedy
 fn manhatten_dist(node: &GreedyNode, dest: &GreedyNode) -> i32 {
     ((dest.x - node.x).abs() + (dest.y - node.y).abs()).try_into().unwrap()
 }
-
